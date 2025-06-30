@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCS Entrance Countdown</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #e1bee7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    #countdown {
+      font-size: 2.5rem;
+      font-weight: bold;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      background-color: #ffffffc4;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s;
+    }
+    #milestone {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    #date-picker {
+      margin-top: 2rem;
+    }
+    #date-picker input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .green { background-color: #c8e6c9; }
+    .yellow { background-color: #fff9c4; }
+    .orange { background-color: #ffe0b2; }
+    .red { background-color: #ffcdd2; }
+    .confetti {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      width: 10px;
+      height: 10px;
+      background: red;
+      position: absolute;
+      animation: fall 3s linear infinite;
+    }
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotateZ(360deg);
+      }
+    }
+    #progress-container {
+      width: 80%;
+      background-color: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    #progress-bar {
+      height: 25px;
+      background-color: #4caf50;
+      width: 0%;
+      text-align: center;
+      color: white;
+      line-height: 25px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: left;
+      max-width: 400px;
+      width: 100%;
+    }
+    li {
+      margin: 0.5rem 0;
+    }
+    input[type='checkbox'] {
+      transform: scale(1.3);
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>MCS Entrance Test Countdown</h1>
+  <div id="progress-container">
+    <div id="progress-bar">0%</div>
+  </div>
+  <div id="countdown">Calculating...</div>
+  <div id="milestone"></div>
+  <div id="date-picker">
+    <label for="test-date">Set Test Date: </label>
+    <input type="date" id="test-date" />
+  </div>
+  <h2>📝 Study Checklist</h2>
+  <ul id="study-list">
+    <li><label><input type="checkbox" />Maths</label></li>
+    <li><label><input type="checkbox" />Biology</label></li>
+    <li><label><input type="checkbox" />Chemistry</label></li>
+    <li><label><input type="checkbox" />Verbal Reasoning</label></li>
+    <li><label><input type="checkbox" />Interview Questions Prep</label></li>
+  </ul>
+  <div class="confetti" id="confetti"></div>
+  <script>
+    const countdownEl = document.getElementById("countdown");
+    const milestoneEl = document.getElementById("milestone");
+    const datePicker = document.getElementById("test-date");
+    const confettiContainer = document.getElementById("confetti");
+    const progressBar = document.getElementById("progress-bar");
+    const checklistItems = document.querySelectorAll("#study-list input[type='checkbox']");
+
+    let targetDate = new Date("2025-11-08T00:00:00");
+
+    datePicker.value = targetDate.toISOString().split("T")[0];
+
+    datePicker.addEventListener("change", () => {
+      targetDate = new Date(datePicker.value + "T00:00:00");
+    });
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        countdownEl.textContent = "Test Day!!";
+        milestoneEl.textContent = "You've made it! Smash that test!";
+        countdownEl.className = "red";
+        launchConfetti();
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.textContent = `MCS Entrance Test: ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds left`;
+
+      countdownEl.className = "";
+      if (days <= 1) {
+        countdownEl.classList.add("red");
+        milestoneEl.textContent = "1 day left! Deep breaths, you've got this!";
+      } else if (days <= 30) {
+        countdownEl.classList.add("orange");
+        milestoneEl.textContent = "30 days left! Final sprint! ⚡";
+      } else if (days <= 60) {
+        countdownEl.classList.add("yellow");
+        milestoneEl.textContent = "60 days left! Stay sharp, stay strong! ✨";
+      } else if (days <= 100) {
+        countdownEl.classList.add("green");
+        milestoneEl.textContent = "100 days left! Plenty of time to conquer this! 💪";
+      } else {
+        milestoneEl.textContent = "You're doing great — keep going! ✨";
+      }
+    }
+
+    function updateProgress() {
+      let total = checklistItems.length;
+      let done = 0;
+      checklistItems.forEach(item => {
+        if (item.checked) done++;
+      });
+      const percent = Math.round((done / total) * 100);
+      progressBar.style.width = percent + "%";
+      progressBar.textContent = percent + "%";
+    }
+
+    function launchConfetti() {
+      confettiContainer.innerHTML = "";
+      for (let i = 0; i < 100; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        piece.style.animationDuration = (Math.random() * 2 + 2) + "s";
+        confettiContainer.appendChild(piece);
+      }
+    }
+
+    checklistItems.forEach(item => {
+      item.addEventListener("change", updateProgress);
+    });
+
+    updateCountdown();
+    updateProgress();
+    setInterval(updateCountdown, 1000);
+  
+    // Reset checklist at midnight
+    function resetChecklistAtMidnight() {
+      const now = new Date();
+      const millisTillMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+      setTimeout(() => {
+        checklistItems.forEach(item => {
+          item.checked = false;
+        });
+        updateProgress();
+        resetChecklistAtMidnight();
+      }, millisTillMidnight);
+    }
+
+    resetChecklistAtMidnight();
+</script>
+</body>
+</html>
