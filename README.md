@@ -1,3 +1,3 @@
 # Countdownboard
 
-A countdown for myself. Good luck.
+A countdown for myself. Good luck to me.
